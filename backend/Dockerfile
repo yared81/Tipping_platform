@@ -16,16 +16,15 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libpq-dev \
     && docker-php-ext-install pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd zip \
-    && apt-get install -y ca-certificates
+    && apt-get install -y ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy composer files
+# Copy composer files and install dependencies *without scripts*
 COPY composer.json composer.lock ./
-
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 
 # Copy package.json and install Node.js dependencies
 COPY package*.json ./
@@ -35,6 +34,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
 
 # Copy application code
 COPY . .
+
+# Now run composer scripts (artisan exists)
+RUN composer run-script post-autoload-dump
 
 # Build frontend assets
 RUN npm run build
@@ -47,15 +49,6 @@ RUN chown -R www-data:www-data /var/www/html \
 # Configure Apache
 RUN a2enmod rewrite
 COPY .docker/apache-config.conf /etc/apache2/sites-available/000-default.conf
-
-# Create .env file if it doesn't exist
-RUN if [ ! -f .env ]; then cp .env.example .env; fi
-
-# Generate application key
-RUN php artisan key:generate --force
-
-# Run migrations
-RUN php artisan migrate --force
 
 # Expose port 80
 EXPOSE 80
