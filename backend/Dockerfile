@@ -53,8 +53,10 @@ RUN chown -R www-data:www-data /var/www/html \
 RUN a2enmod rewrite
 COPY .docker/apache-config.conf /etc/apache2/sites-available/000-default.conf
 
-# Expose port 80
-EXPOSE 80
+# Expose default port (Render injects PORT at runtime)
+EXPOSE 8080
 
-# Start Apache
-CMD ["apache2-foreground"]
+# Use entrypoint to reconfigure Apache to the PORT and start
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
