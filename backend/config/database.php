@@ -58,8 +58,13 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
+                // Prefer provider-specific CA if set (DB_SSL_CA or MYSQL_ATTR_SSL_CA)
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA', env('DB_SSL_CA')),
+                // Allow toggling server cert verification via env (default false for broader compatibility)
+                defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT') ? PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT : null => filter_var(env('MYSQL_ATTR_SSL_VERIFY_SERVER_CERT', false), FILTER_VALIDATE_BOOLEAN),
+            ], static function ($value) {
+                return $value !== null && $value !== '';
+            }) : [],
         ],
 
         'mariadb' => [
@@ -78,8 +83,11 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA', env('DB_SSL_CA')),
+                defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT') ? PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT : null => filter_var(env('MYSQL_ATTR_SSL_VERIFY_SERVER_CERT', false), FILTER_VALIDATE_BOOLEAN),
+            ], static function ($value) {
+                return $value !== null && $value !== '';
+            }) : [],
         ],
 
         'pgsql' => [
