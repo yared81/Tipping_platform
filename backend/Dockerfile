@@ -38,6 +38,9 @@ COPY . .
 # Now run composer scripts (artisan exists)
 RUN composer run-script post-autoload-dump
 
+# Fix permissions for Laravel storage and cache
+RUN chown -R www-data:www-data storage bootstrap/cache && chmod -R 775 storage bootstrap/cache
+
 # Build frontend assets
 RUN npm run build
 
