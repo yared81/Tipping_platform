@@ -1,3 +1,12 @@
+# Live API (Render)
+
+- Base URL: https://tipping-platform-backend.onrender.com
+- API index: https://tipping-platform-backend.onrender.com/api
+- Health (app): https://tipping-platform-backend.onrender.com/up
+- Health (API + DB): https://tipping-platform-backend.onrender.com/api/health
+
+---
+
 # Tipping API — Backend Documentation
 
 This is the backend for the **Tipping Platform**, built with **Laravel 11** and **Laravel Sanctum**.
@@ -42,7 +51,7 @@ It provides authentication, email verification, password reset, tipping, payment
 ##  Base URL
 
 ```http
-http://127.0.0.1:8000/api
+https://tipping-platform-backend.onrender.com/api
 ```
 
 All endpoints are prefixed with `/api`.
@@ -67,7 +76,7 @@ Content-Type: application/json
 ### Endpoint
 
 ```
-GET /health
+GET /api/health
 ```
 
 ### Response (200)
@@ -75,7 +84,8 @@ GET /health
 ```json
 {
   "status": "ok",
-  "database": "connected"
+  "database": true,
+  "timestamp": "2025-09-22T12:34:56Z"
 }
 ```
 
